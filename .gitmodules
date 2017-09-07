@@ -1,0 +1,3 @@
+[submodule "mriscvprog"]
+	path = mriscvprog
+	url = https://github.com/onchipuis/mriscvprog.git
