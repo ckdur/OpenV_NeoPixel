@@ -1,15 +1,9 @@
 ASSEMBLY_OBJS = start.o custom_ops.o
-C_OBJS = OpenV_NeoPixel.o 
+C_OBJS = OpenV_NeoPixel.o
 CPP_OBJS = 
 INO_OBJS = 
-GCC_WARNS  = -Werror -Wall -Wextra -Wshadow -Wundef -Wpointer-arith -Wcast-qual -Wcast-align -Wwrite-strings
-GCC_WARNS += -Wredundant-decls -Wstrict-prototypes -Wmissing-prototypes -pedantic # -Wconversion
-INCLUDE_OPT = -I./ -I./arduinoReady
-DEFS = -DARDUINO=105 -DF_CPU=25000000 -D__RISCV_OPENV__
+INCLUDE_OPT = 
 TOOLCHAIN_PREFIX = riscv32-unknown-elf-
-CFLAGS = -march=rv32im 
-CFLAGS +=-Os -ffunction-sections -fdata-sections -MD 
-LDFLAGS = --data-sections
 
 simple.bin: simple.elf
 	$(TOOLCHAIN_PREFIX)objcopy -O binary $< $@
@@ -17,9 +11,9 @@ simple.bin: simple.elf
 	chmod -x $@
 
 simple.elf: $(ASSEMBLY_OBJS) $(C_OBJS) $(CPP_OBJS) $(INO_OBJS) sections.lds
-	$(TOOLCHAIN_PREFIX)gcc -Os -march=rv32im -ffreestanding -nostdlib -o $@ \
-		-Wl,-Bstatic,-T,sections.lds,-Map,input.map,--strip-debug $(LDFLAGS) \
-		$(ASSEMBLY_OBJS) $(C_OBJS) $(CPP_OBJS) $(INO_OBJS) -lgcc -lc -lstdc++
+	$(TOOLCHAIN_PREFIX)gcc -Os -ffreestanding -nostdlib -o $@ \
+		-Wl,-Bstatic,-T,sections.lds,-Map,input.map,--strip-debug \
+		$(ASSEMBLY_OBJS) $(C_OBJS) $(CPP_OBJS) $(INO_OBJS) -lgcc -lm
 	chmod -x $@
 
 #%.o: %.ino
@@ -29,12 +23,12 @@ simple.elf: $(ASSEMBLY_OBJS) $(C_OBJS) $(CPP_OBJS) $(INO_OBJS) sections.lds
 	$(TOOLCHAIN_PREFIX)g++ -c $(CFLAGS) -o $@ $(INCLUDE_OPT) $(DEFS) $<
 
 %.o: %.c
-	$(TOOLCHAIN_PREFIX)gcc -c $(CFLAGS) -o $@ $(INCLUDE_OPT) $(DEFS) $<
+	$(TOOLCHAIN_PREFIX)gcc $(INCLUDE_OPT) -c -march=rv32i --std=c99 -nostdlib $< -o $@
 	
 %.o: %.S
-	$(TOOLCHAIN_PREFIX)gcc -c $(CFLAGS) -o $@ $(INCLUDE_OPT) $(DEFS) $<
+	$(TOOLCHAIN_PREFIX)gcc $(INCLUDE_OPT) -c $< -o $@
 
 clean:
-	rm -vrf *.elf *.bin *.o *.map $(ASSEMBLY_OBJS) $(C_OBJS) $(CPP_OBJS) $(INO_OBJS)
+	rm -vrf *.elf *.bin *.o *.d *.map $(ASSEMBLY_OBJS) $(C_OBJS) $(CPP_OBJS) $(INO_OBJS)
 
 .PHONY: simple.bin

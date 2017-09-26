@@ -8,8 +8,8 @@ uint64_t endTime;       // Latch timing reference
 
 // **************** PARAMETERS ******************
 
-#define pin 5
-#define pin2 4
+#define pin 6
+#define pin2 5
 #define NUM_OF_LEDS 15
 #define WS2812
 
